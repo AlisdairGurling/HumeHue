@@ -57,7 +57,7 @@ An interactive smart home project that uses AI to analyze the emotion in your vo
     ```
 
 2.  **Open the Web Interface**
-    Open your browser and navigate to: `http://127.0.0.1:5000`
+    Open your browser and navigate to: `http://127.0.0.1:5001`
 
 3.  **Connect System**
     * Enter your **Hume API Key**.
