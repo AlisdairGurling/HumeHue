@@ -1,5 +1,7 @@
 import asyncio
 import threading
+import base64
+import functools
 from flask import Flask, render_template, request, jsonify
 from flask_socketio import SocketIO
 from hume import HumeStreamClient
@@ -57,7 +59,9 @@ async def hume_loop():
                         continue
                         
                     audio_data = await audio_queue.get()
-                    result = await socket.send_bytes(audio_data)
+                    # FIX: Hume expects base64 encoded strings, not raw bytes
+                    encoded_data = base64.b64encode(audio_data).decode('utf-8')
+                    result = await socket.send_bytes(encoded_data)
                     
                     if result and "prosody" in result and "predictions" in result["prosody"]:
                         preds = result["prosody"]["predictions"]
@@ -73,7 +77,10 @@ async def hume_loop():
                                 if session_data["bridge"] and session_data["light_name"]:
                                     try:
                                         state = map_emotion_to_light(name)
-                                        session_data["bridge"].set_light(session_data["light_name"], state, transitiontime=5)
+                                        # FIX: Run blocking Hue call in a separate thread so we don't block the AsyncIO loop
+                                        loop = asyncio.get_running_loop()
+                                        func = functools.partial(session_data["bridge"].set_light, session_data["light_name"], state, transitiontime=5)
+                                        await loop.run_in_executor(None, func)
                                     except Exception as e:
                                         print(f"Light Error: {e}")
 
@@ -125,5 +132,5 @@ def handle_audio(data):
         new_loop.call_soon_threadsafe(audio_queue.put_nowait, data)
 
 if __name__ == '__main__':
-    print("🚀 App running on http://127.0.0.1:5000")
-    socketio.run(app, allow_unsafe_werkzeug=True, debug=True)
+    print("🚀 App running on http://127.0.0.1:5001")
+    socketio.run(app, allow_unsafe_werkzeug=True, debug=True, port=5001)
