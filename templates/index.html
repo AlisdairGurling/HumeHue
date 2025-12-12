@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hume x Hue</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <style>
+        body { font-family: -apple-system, sans-serif; text-align: center; background: #111; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .container { background: #222; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 350px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: none; background: #333; color: white; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; margin-top: 10px; font-size: 1.1em; cursor: pointer; border-radius: 8px; border: none; font-weight: bold; transition: 0.2s; }
+        .btn-primary { background-color: #007AFF; color: white; }
+        .btn-stop { background-color: #FF3B30; color: white; }
+        #error-msg { color: #FF3B30; margin-top: 10px; font-size: 0.9em; }
+        #status-display { font-size: 2.5em; font-weight: bold; margin: 20px 0; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div id="setup-screen" class="container">
+        <h2>🔌 Configuration</h2>
+        <input type="text" id="humeKey" placeholder="Hume API Key">
+        <input type="text" id="hueIp" placeholder="Hue Bridge IP (e.g. 192.168.1.50)">
+        <input type="text" id="lightName" placeholder="Light Name (e.g. Hue Go)">
+        <button onclick="connectSystem()" class="btn-primary">Connect System</button>
+        <p id="error-msg"></p>
+    </div>
+
+    <div id="dashboard-screen" class="container hidden">
+        <h2>🎤 Empathy Light</h2>
+        <div id="status-display">Ready</div>
+        <div id="score-display" style="color:#888;">Waiting for voice...</div>
+        <br>
+        <button id="startBtn" class="btn-primary" onclick="startRecording()">Start Listening</button>
+        <button id="stopBtn" class="btn-stop hidden" onclick="stopRecording()">Stop Listening</button>
+    </div>
+
+    <script>
+        const socket = io();
+        let audioContext, processor, input, globalStream;
+
+        async function connectSystem() {
+            const humeKey = document.getElementById('humeKey').value;
+            const hueIp = document.getElementById('hueIp').value;
+            const lightName = document.getElementById('lightName').value;
+            const errorMsg = document.getElementById('error-msg');
+
+            if (!humeKey || !hueIp || !lightName) {
+                errorMsg.innerText = "Please fill in all fields.";
+                return;
+            }
+
+            errorMsg.innerText = "Connecting... Press Bridge Button NOW if first time!";
+
+            try {
+                const response = await fetch('/setup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ hume_key: humeKey, hue_ip: hueIp, light_name: lightName })
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('setup-screen').classList.add('hidden');
+                    document.getElementById('dashboard-screen').classList.remove('hidden');
+                <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hume x Hue</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <style>
+        body { font-family: -apple-system, sans-serif; text-align: center; background: #111; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .container { background: #222; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 350px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: none; background: #333; color: white; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; margin-top: 10px; font-size: 1.1em; cursor: pointer; border-radius: 8px; border: none; font-weight: bold; transition: 0.2s; }
+        .btn-primary { background-color: #007AFF; color: white; }
+        .btn-stop { background-color: #FF3B30; color: white; }
+        #error-msg { color: #FF3B30; margin-top: 10px; font-size: 0.9em; }
+        #status-display { font-size: 2.5em; font-weight: bold; margin: 20px 0; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div id="setup-screen" class="container">
+        <h2>🔌 Configuration</h2>
+        <input type="text" id="humeKey" placeholder="Hume API Key">
+        <input type="text" id="hueIp" placeholder="Hue Bridge IP (e.g. 192.168.1.50)">
+        <input type="text" id="lightName" placeholder="Light Name (e.g. Hue Go)">
+        <button onclick="connectSystem()" class="btn-primary">Connect System</button>
+        <p id="error-msg"></p>
+    </div>
+
+    <div id="dashboard-screen" class="container hidden">
+        <h2>🎤 Empathy Light</h2>
+        <div id="status-display">Ready</div>
+        <div id="score-display" style="color:#888;">Waiting for voice...</div>
+        <br>
+        <button id="startBtn" class="btn-primary" onclick="startRecording()">Start Listening</button>
+        <button id="stopBtn" class="btn-stop hidden" onclick="stopRecording()">Stop Listening</button>
+    </div>
+
+    <script>
+        const socket = io();
+        let audioContext, processor, input, globalStream;
+
+        async function connectSystem() {
+            const humeKey = document.getElementById('humeKey').value;
+            const hueIp = document.getElementById('hueIp').value;
+            const lightName = document.getElementById('lightName').value;
+            const errorMsg = document.getElementById('error-msg');
+
+            if (!humeKey || !hueIp || !lightName) {
+                errorMsg.innerText = "Please fill in all fields.";
+                return;
+            }
+
+            errorMsg.innerText = "Connecting... Press Bridge Button NOW if first time!";
+
+            try {
+                const response = await fetch('/setup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ hume_key: humeKey, hue_ip: hueIp, light_name: lightName })
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('setup-screen').classList.add('hidden');
+                    document.getElementById('dashboard-screen').classList.remove('hidden');
+                } else {
+                    errorMsg.innerText = result.message;
+                }
+            } catch (e) {
+                errorMsg.innerText = "Server Error: " + e;
+            }
+        }
+
+        socket.on('emotion_update', (data) => {
+            document.getElementById('status-display').innerText = data.emotion;
+            document.getElementById('score-display').innerText = `Confidence: ${(data.score * 100).toFixed(0)}%`;
+            document.body.style.borderColor = "white"; 
+        });
+
+        async function startRecording() {
+            document.getElementById('startBtn').classList.add('hidden');
+            document.getElementById('stopBtn').classList.remove('hidden');
+            document.getElementById('status-display').innerText = "Listening...";
+            
+            globalStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            audioContext = new AudioContext();
+            input = audioContext.createMediaStreamSource(globalStream);
+            processor = audioContext.createScriptProcessor(4096, 1, 1);
+
+            processor.onaudioprocess = function(e) {
+                const inputData = e.inputBuffer.getChannelData(0);
+                const buffer = new ArrayBuffer(inputData.length * 2);
+                const outputView = new DataView(buffer);
+                for (let i = 0; i < inputData.length; i++) {
+                    let s = Math.max(-1, Math.min(1, inputData[i]));
+                    outputView.setInt16(i * 2, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+                }
+                socket.emit('audio_stream', buffer);
+            };
+            input.connect(processor);
+            processor.connect(audioContext.destination);
+        }
+
+        function stopRecording() {
+            document.getElementById('startBtn').classList.remove('hidden');
+            document.getElementById('stopBtn').classList.add('hidden');
+            document.getElementById('status-display').innerText = "Paused";
+            if (globalStream) globalStream.getTracks().forEach(track => track.stop());
+            if (audioContext) audioContext.close();
+        }
+    </script>
+</body>
+</html>
