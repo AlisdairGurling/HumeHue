@@ -59,8 +59,8 @@ async def hume_loop():
                         continue
                         
                     audio_data = await audio_queue.get()
-                    # FIX: Hume expects base64 encoded strings, not raw bytes
-                    encoded_data = base64.b64encode(audio_data).decode('utf-8')
+                    # FIX: Hume expects base64 encoded bytes
+                    encoded_data = base64.b64encode(audio_data)
                     result = await socket.send_bytes(encoded_data)
                     
                     if result and "prosody" in result and "predictions" in result["prosody"]:
